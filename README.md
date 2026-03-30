@@ -1,4 +1,4 @@
-# mycli
+# voltX
 
 A modern, production-ready CLI toolkit for Windows, built with Node.js (ESM).
 
@@ -13,8 +13,8 @@ A modern, production-ready CLI toolkit for Windows, built with Node.js (ESM).
 ## Installation
 
 ```
-git clone https://github.com/yourname/mycli.git
-cd mycli
+git clone https://github.com/yourname/voltX.git
+cd voltX
 npm install
 ```
 
@@ -26,65 +26,65 @@ All commands support `--help` for details and examples.
 
 #### Ping
 ```
-mycli net ping google.com -c 5
+voltX net ping google.com -c 5
 ```
 
 #### Port Scan
 ```
-mycli net scan 127.0.0.1 --ports 22-80
+voltX net scan 127.0.0.1 --ports 22-80
 ```
 
 #### HTTP Monitor
 ```
-mycli net monitor https://example.com --interval 2000
+voltX net monitor https://example.com --interval 2000
 ```
 
 #### HTTP Client
 ```
-mycli net http https://api.github.com --method GET --headers '{"User-Agent":"mycli"}'
+voltX net http https://api.github.com --method GET --headers '{"User-Agent":"voltX"}'
 ```
 
 ### Developer Commands
 
 #### Scaffold Project
 ```
-mycli dev scaffold node-api
-mycli dev scaffold react-app
-mycli dev scaffold cli-tool
+voltX dev scaffold node-api
+voltX dev scaffold react-app
+voltX dev scaffold cli-tool
 ```
 
 #### .env Diff
 ```
-mycli dev env diff .env.example .env
+voltX dev env diff .env.example .env
 ```
 
 #### Git Clean
 ```
-mycli dev git clean
+voltX dev git clean
 ```
 
 #### Static File Server
 ```
-mycli dev serve public --port 8080
+voltX dev serve public --port 8080
 ```
 
 ### Automate Commands
 
 #### Watch Directory & Run
 ```
-mycli automate watch src --ext js --run "npm test"
+voltX automate watch src --ext js --run "npm test"
 ```
 
 #### Run Named Task
 ```
-mycli automate run build
+voltX automate run build
 ```
 
 ### Config
 
 ```
-mycli config --get defaultPort
-mycli config --set defaultPort 8080
+voltX config --get defaultPort
+voltX config --set defaultPort 8080
 ```
 
 ## Persistent Config
@@ -101,7 +101,7 @@ User preferences (default port, editor, etc.) are stored using [`conf`](https://
    ```
    npm run build:exe
    ```
-3. The `.exe` will be in `dist/mycli.exe`.
+3. The `.exe` will be in `dist/voltx.exe`.
 
 ## Windows Notes
 - All paths are normalized for Windows.

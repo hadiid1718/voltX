@@ -10,10 +10,10 @@ import config from './utils/config.js';
 const program = new Command();
 
 program
-  .name('mycli')
+  .name('voltX')
   .description('A modern CLI toolkit for Windows')
   .version('1.0.0')
-  .addHelpText('beforeAll', '\n' + chalk.cyan(figlet.textSync('mycli', { horizontalLayout: 'full' })) + '\n');
+  .addHelpText('beforeAll', '\n' + chalk.cyan(figlet.textSync('voltX', { horizontalLayout: 'full' })) + '\n');
 
 program
   .command('config')
@@ -25,14 +25,16 @@ program
       const val = config.get(opts.get);
       if (val !== undefined) log.success(`${opts.get} = ${val}`);
       else log.warn('Key not found.');
-    } else if (opts.set) {
+    } else if (Array.isArray(opts.set) && opts.set.length === 2) {
       config.set(opts.set[0], opts.set[1]);
       log.success(`Set ${opts.set[0]} = ${opts.set[1]}`);
+    } else if (typeof opts.set === 'string') {
+      log.warn('Please provide both a key and a value for --set.');
     } else {
       log.info('Use --get <key> or --set <key> <value>');
     }
   })
-  .addHelpText('after', `\nExample:\n  mycli config --get defaultPort\n  mycli config --set defaultPort 8080`);
+  .addHelpText('after', `\nExample:\n  voltX config --get defaultPort\n  voltX config --set defaultPort 8080`);
 
 program.addCommand(network);
 program.addCommand(dev);

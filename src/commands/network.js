@@ -3,7 +3,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
 import axios from 'axios';
-import execa from 'execa';
+import { execa } from 'execa';
 import log from '../utils/logger.js';
 import os from 'os';
 
@@ -31,7 +31,7 @@ network
       log.error(err.stderr || err.message);
     }
   })
-  .addHelpText('after', `\nExample:\n  mycli net ping google.com -c 5`);
+  .addHelpText('after', `\nExample:\n  voltX net ping google.com -c 5`);
 
 network
   .command('scan <ip>')
@@ -69,7 +69,7 @@ network
     if (openPorts.length) log.success('Open ports: ' + openPorts.join(', '));
     else log.warn('No open ports found.');
   })
-  .addHelpText('after', `\nExample:\n  mycli net scan 127.0.0.1 --ports 22-80`);
+  .addHelpText('after', `\nExample:\n  voltX net scan 127.0.0.1 --ports 22-80`);
 
 network
   .command('monitor <url>')
@@ -90,7 +90,7 @@ network
       await sleep(interval);
     }
   })
-  .addHelpText('after', `\nExample:\n  mycli net monitor https://example.com --interval 2000`);
+  .addHelpText('after', `\nExample:\n  voltX net monitor https://example.com --interval 2000`);
 
 network
   .command('http <url>')
@@ -118,6 +118,6 @@ network
       log.error(err.message);
     }
   })
-  .addHelpText('after', `\nExample:\n  mycli net http https://api.github.com --method GET --headers '{"User-Agent":"mycli"}'`);
+  .addHelpText('after', `\nExample:\n  voltX net http https://api.github.com --method GET --headers '{"User-Agent":"voltX"}'`);
 
 export default network;

@@ -8,15 +8,15 @@
     "voltX": "bin/voltx.js"
   },
   "scripts": {
-    "start": "node bin/voltx.js",
-    "build:exe": "pkg . --targets node18-win-x64 --output dist/mycli.exe"
+    "dev": "nodemon bin/voltx.js",
+    "build:exe": "pkg . --targets node18-win-x64 --output dist/voltx.exe"
   },
   "dependencies": {
     "axios": "^1.6.0",
     "chalk": "^5.3.0",
     "chokidar": "^3.5.3",
     "commander": "^11.1.0",
-    "conf": "^10.2.1",
+    "conf": "^10.2.0",
     "execa": "^8.0.1",
     "figlet": "^1.7.0",
     "fs-extra": "^11.2.0",
@@ -24,9 +24,22 @@
     "ora": "^7.0.1"
   },
   "devDependencies": {
-    "pkg": "^6.3.0"
+    "nodemon": "^3.1.14",
+    "pkg": "^5.8.1"
   },
-  "keywords": ["cli", "windows", "commander", "chalk", "ora", "figlet", "conf", "execa", "fs-extra", "inquirer", "axios"],
+  "keywords": [
+    "cli",
+    "windows",
+    "commander",
+    "chalk",
+    "ora",
+    "figlet",
+    "conf",
+    "execa",
+    "fs-extra",
+    "inquirer",
+    "axios"
+  ],
   "author": "Your Name",
   "license": "MIT"
 }

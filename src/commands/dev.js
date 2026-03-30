@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import fs from 'fs-extra';
 import path from 'path';
-import execa from 'execa';
+import { execa } from 'execa';
 import log from '../utils/logger.js';
 import config from '../utils/config.js';
 import os from 'os';
@@ -73,7 +73,7 @@ dev
     }
     log.success('Scaffolded ' + template + ' in ' + dir);
   })
-  .addHelpText('after', `\nExample:\n  mycli dev scaffold node-api`);
+  .addHelpText('after', `\nExample:\n  voltX dev scaffold node-api`);
 
 dev
   .command('env diff <file1> <file2>')
@@ -94,7 +94,7 @@ dev
       log.error(e.message);
     }
   })
-  .addHelpText('after', `\nExample:\n  mycli dev env diff .env.example .env`);
+  .addHelpText('after', `\nExample:\n  voltX dev env diff .env.example .env`);
 
 dev
   .command('git clean')
@@ -119,7 +119,7 @@ dev
       log.error(e.message);
     }
   })
-  .addHelpText('after', `\nExample:\n  mycli dev git clean`);
+  .addHelpText('after', `\nExample:\n  voltX dev git clean`);
 
 dev
   .command('serve <dir>')
@@ -134,6 +134,6 @@ dev
       log.success(`Serving ${dir} at http://localhost:${port}`);
     });
   })
-  .addHelpText('after', `\nExample:\n  mycli dev serve public --port 8080`);
+  .addHelpText('after', `\nExample:\n  voltX dev serve public --port 8080`);
 
 export default dev;

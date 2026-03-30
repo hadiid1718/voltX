@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import fs from 'fs-extra';
 import path from 'path';
-import execa from 'execa';
+import { execa, execaCommand } from 'execa';
 import log from '../utils/logger.js';
 import chokidar from 'chokidar';
 
@@ -24,7 +24,7 @@ automate
       if (runCmd) {
         const spinner = ora(`Running: ${runCmd}`).start();
         try {
-          const { stdout } = await execa.command(runCmd, { shell: true });
+          const { stdout } = await execaCommand(runCmd, { shell: true });
           spinner.succeed('Command finished');
           log.success(stdout);
         } catch (e) {
@@ -34,15 +34,15 @@ automate
       }
     });
   })
-  .addHelpText('after', `\nExample:\n  mycli automate watch src --ext js --run "npm test"`);
+  .addHelpText('after', `\nExample:\n  voltX automate watch src --ext js --run "npm test"`);
 
 automate
   .command('run <task>')
-  .description('Named task runner reading from a mycli.config.json file')
+  .description('Named task runner reading from a voltX.config.json file')
   .action(async (task) => {
-    const configPath = path.resolve('mycli.config.json');
+    const configPath = path.resolve('voltX.config.json');
     if (!await fs.pathExists(configPath)) {
-      log.error('mycli.config.json not found in current directory.');
+      log.error('voltX.config.json not found in current directory.');
       return;
     }
     const cfg = await fs.readJson(configPath);
@@ -53,7 +53,7 @@ automate
     const cmd = cfg.tasks[task];
     const spinner = ora(`Running task: ${task}`).start();
     try {
-      const { stdout } = await execa.command(cmd, { shell: true });
+      const { stdout } = await execaCommand(cmd, { shell: true });
       spinner.succeed('Task finished');
       log.success(stdout);
     } catch (e) {
@@ -61,6 +61,6 @@ automate
       log.error(e.stderr || e.message);
     }
   })
-  .addHelpText('after', `\nExample:\n  mycli automate run build`);
+  .addHelpText('after', `\nExample:\n  voltX automate run build`);
 
 export default automate;

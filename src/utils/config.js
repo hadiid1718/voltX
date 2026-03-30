@@ -1,6 +1,6 @@
 import Conf from 'conf';
 
-const config = new Conf({ projectName: 'mycli' });
+const config = new Conf({ projectName: 'voltX' });
 
 export default {
   get: (key, def) => config.get(key, def),

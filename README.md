@@ -3,6 +3,8 @@
 `voltX` is a Windows-friendly Node.js CLI that helps developers manage configuration,
 check networks, scaffold projects, and automate repeated tasks from the terminal.
 
+**npm package name:** `voltx-cli`
+
 It is designed to be useful while building:
 
 - websites
@@ -36,6 +38,7 @@ If you want to use the package name directly in your terminal after linking or p
 you can run:
 
 ```powershell
+npm install -g voltx-cli
 voltx --help
 ```
 
@@ -47,8 +50,8 @@ Stores and reads persistent settings using local config storage.
 #### Example
 
 ```powershell
-voltX config --set defaultPort 8080
-voltX config --get defaultPort
+voltx config --set defaultPort 8080
+voltx config --get defaultPort
 ```
 
 #### Good use cases
@@ -65,25 +68,25 @@ Network helpers for pinging, scanning ports, monitoring endpoints, and sending H
 #### Ping a host
 
 ```powershell
-voltX net ping google.com -c 4
+voltx net ping google.com -c 4
 ```
 
 #### Scan ports
 
 ```powershell
-voltX net scan 127.0.0.1 --ports 22-80
+voltx net scan 127.0.0.1 --ports 22-80
 ```
 
 #### Monitor a URL
 
 ```powershell
-voltX net monitor https://example.com --interval 5000
+voltx net monitor https://example.com --interval 5000
 ```
 
 #### Send an HTTP request
 
 ```powershell
-voltX net http https://api.github.com --method GET --headers "{\"User-Agent\":\"voltX\"}"
+voltx net http https://api.github.com --method GET --headers "{\"User-Agent\":\"voltX\"}"
 ```
 
 #### Why it helps
@@ -100,37 +103,37 @@ Developer helpers for project scaffolding, environment checks, branch cleanup, a
 #### Scaffold a Node API project
 
 ```powershell
-voltX dev scaffold node-api
+voltx dev scaffold node-api
 ```
 
 #### Scaffold a React app
 
 ```powershell
-voltX dev scaffold react-app
+voltx dev scaffold react-app
 ```
 
 #### Scaffold a CLI tool
 
 ```powershell
-voltX dev scaffold cli-tool
+voltx dev scaffold cli-tool
 ```
 
 #### Compare two `.env` files
 
 ```powershell
-voltX dev env diff .env.example .env
+voltx dev env diff .env.example .env
 ```
 
 #### Clean local Git branches
 
 ```powershell
-voltX dev git clean
+voltx dev git clean
 ```
 
 #### Serve a static folder
 
 ```powershell
-voltX dev serve public --port 8080
+voltx dev serve public --port 8080
 ```
 
 #### Why it helps
@@ -148,13 +151,13 @@ Watches files and runs commands automatically, or runs named tasks from a config
 #### Watch files and run a command
 
 ```powershell
-voltX automate watch src --ext js --run "npm test"
+voltx automate watch src --ext js --run "npm test"
 ```
 
 #### Run a named task
 
 ```powershell
-voltX automate run build
+voltx automate run build
 ```
 
 #### Notes
@@ -187,15 +190,30 @@ node .\bin\voltx.js config --get defaultPort
 node .\bin\voltx.js net ping google.com -c 2
 ```
 
-## Build an executable
+## Publish to npm
 
-If you want a Windows `.exe`, run:
+To make `voltX` available to all developers, publish it to npm and let users install it globally.
+
+### Before publishing
 
 ```powershell
-npm run build:exe
+npm login
+npm pack --dry-run
 ```
 
-The output will be created in `dist/voltx.exe`.
+### Publish
+
+```powershell
+npm publish --access public
+```
+
+### Install globally
+
+```powershell
+npm install -g voltx-cli
+voltx --help
+```
+
 
 ## Example workflow for a website
 

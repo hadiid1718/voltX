@@ -1,15 +1,14 @@
 {
-  "name": "voltX",
-  "version": "1.0.0",
+  "name": "voltx-cli",
+  "version": "1.1.0",
   "description": "A modern, production-ready CLI toolkit for Windows (Node.js, ESM)",
   "type": "module",
   "main": "src/index.js",
   "bin": {
-    "voltX": "bin/voltx.js"
+    "voltx": "bin/voltx.js"
   },
   "scripts": {
-    "dev": "nodemon bin/voltx.js",
-    "build:exe": "pkg . --targets node18-win-x64 --output dist/voltx.exe"
+    "dev": "nodemon bin/voltx.js"
   },
   "dependencies": {
     "axios": "^1.6.0",
@@ -20,12 +19,24 @@
     "execa": "^8.0.1",
     "figlet": "^1.7.0",
     "fs-extra": "^11.2.0",
+    "express": "^4.21.2",
     "inquirer": "^9.2.16",
     "ora": "^7.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14",
-    "pkg": "^5.8.1"
+    "nodemon": "^3.1.14"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "cli",

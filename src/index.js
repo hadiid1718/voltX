@@ -19,17 +19,18 @@ program
   .command('config')
   .description('Manage persistent config')
   .option('--get <key>', 'Get config value')
-  .option('--set <key> <value>', 'Set config value')
+  .option('--set <key...>', 'Set config value')
   .action((opts) => {
     if (opts.get) {
       const val = config.get(opts.get);
       if (val !== undefined) log.success(`${opts.get} = ${val}`);
       else log.warn('Key not found.');
-    } else if (Array.isArray(opts.set) && opts.set.length === 2) {
-      config.set(opts.set[0], opts.set[1]);
-      log.success(`Set ${opts.set[0]} = ${opts.set[1]}`);
-    } else if (typeof opts.set === 'string') {
-      log.warn('Please provide both a key and a value for --set.');
+    } else if (Array.isArray(opts.set) && opts.set.length >= 2) {
+      const [key, value] = opts.set;
+      config.set(key, value);
+      log.success(`Set ${key} = ${value}`);
+    } else if (opts.set) {
+      log.warn('Please provide both a key and a value for --set. Example: voltX config --set defaultPort 8080');
     } else {
       log.info('Use --get <key> or --set <key> <value>');
     }

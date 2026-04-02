@@ -1,112 +1,212 @@
 # voltX
 
-A modern, production-ready CLI toolkit for Windows, built with Node.js (ESM).
+`voltX` is a Windows-friendly Node.js CLI that helps developers manage configuration,
+check networks, scaffold projects, and automate repeated tasks from the terminal.
 
-## Features
-- **Network tools:** ping, port scan, HTTP monitor, HTTP client
-- **Developer tools:** project scaffolding, .env diff, git branch cleanup, static file server
-- **Automation:** directory watcher with shell runner, named task runner
-- **Persistent config:** User preferences with `conf`
-- **Beautiful output:** chalk, ora, figlet banners
-- **Windows support:** Path normalization, execa shell, ANSI color
+It is designed to be useful while building:
 
-## Installation
+- websites
+- backend APIs
+- local tools and system utilities
+- repeatable development workflows
 
-```
+## Why use it?
+
+- keep common settings in one place
+- test servers and endpoints quickly
+- scaffold starter projects faster
+- automate watch/build/test tasks
+- reduce manual terminal work during development
+
+## Install
+
+```powershell
 git clone https://github.com/yourname/voltX.git
 cd voltX
 npm install
 ```
 
-## Usage
+## Run locally
 
-All commands support `--help` for details and examples.
-
-### Network Commands
-
-#### Ping
-```
-voltX net ping google.com -c 5
+```powershell
+node .\bin\voltx.js --help
 ```
 
-#### Port Scan
+If you want to use the package name directly in your terminal after linking or publishing,
+you can run:
+
+```powershell
+voltx --help
 ```
+
+## Commands
+
+### 1) `config`
+Stores and reads persistent settings using local config storage.
+
+#### Example
+
+```powershell
+voltX config --set defaultPort 8080
+voltX config --get defaultPort
+```
+
+#### Good use cases
+
+- save a default server port
+- store an API base URL
+- remember a theme or mode
+
+---
+
+### 2) `net`
+Network helpers for pinging, scanning ports, monitoring endpoints, and sending HTTP requests.
+
+#### Ping a host
+
+```powershell
+voltX net ping google.com -c 4
+```
+
+#### Scan ports
+
+```powershell
 voltX net scan 127.0.0.1 --ports 22-80
 ```
 
-#### HTTP Monitor
-```
-voltX net monitor https://example.com --interval 2000
+#### Monitor a URL
+
+```powershell
+voltX net monitor https://example.com --interval 5000
 ```
 
-#### HTTP Client
-```
-voltX net http https://api.github.com --method GET --headers '{"User-Agent":"voltX"}'
+#### Send an HTTP request
+
+```powershell
+voltX net http https://api.github.com --method GET --headers "{\"User-Agent\":\"voltX\"}"
 ```
 
-### Developer Commands
+#### Why it helps
 
-#### Scaffold Project
-```
+- check whether your API is online
+- confirm ports are open during local development
+- inspect HTTP responses quickly
+
+---
+
+### 3) `dev`
+Developer helpers for project scaffolding, environment checks, branch cleanup, and local serving.
+
+#### Scaffold a Node API project
+
+```powershell
 voltX dev scaffold node-api
+```
+
+#### Scaffold a React app
+
+```powershell
 voltX dev scaffold react-app
+```
+
+#### Scaffold a CLI tool
+
+```powershell
 voltX dev scaffold cli-tool
 ```
 
-#### .env Diff
-```
+#### Compare two `.env` files
+
+```powershell
 voltX dev env diff .env.example .env
 ```
 
-#### Git Clean
-```
+#### Clean local Git branches
+
+```powershell
 voltX dev git clean
 ```
 
-#### Static File Server
-```
+#### Serve a static folder
+
+```powershell
 voltX dev serve public --port 8080
 ```
 
-### Automate Commands
+#### Why it helps
 
-#### Watch Directory & Run
-```
+- start a project faster
+- compare environment settings between dev and prod
+- preview frontend files locally
+- manage branches without leaving the terminal
+
+---
+
+### 4) `automate`
+Watches files and runs commands automatically, or runs named tasks from a config file.
+
+#### Watch files and run a command
+
+```powershell
 voltX automate watch src --ext js --run "npm test"
 ```
 
-#### Run Named Task
-```
+#### Run a named task
+
+```powershell
 voltX automate run build
 ```
 
-### Config
+#### Notes
 
+- `automate watch` is useful for rebuild/test workflows
+- `automate run` expects a local `voltX.config.json` file
+
+Example `voltX.config.json`:
+
+```json
+{
+  "tasks": {
+    "build": "npm run build",
+    "test": "npm test"
+  }
+}
 ```
-voltX config --get defaultPort
-voltX config --set defaultPort 8080
+
+---
+
+## Quick local test
+
+Use these commands to confirm the CLI works on your machine:
+
+```powershell
+cd "E:\npm package\voltX"
+node .\bin\voltx.js --help
+node .\bin\voltx.js config --set defaultPort 8080
+node .\bin\voltx.js config --get defaultPort
+node .\bin\voltx.js net ping google.com -c 2
 ```
 
-## Persistent Config
+## Build an executable
 
-User preferences (default port, editor, etc.) are stored using [`conf`](https://www.npmjs.com/package/conf).
+If you want a Windows `.exe`, run:
 
-## Build Windows Executable
+```powershell
+npm run build:exe
+```
 
-1. Install [pkg](https://github.com/vercel/pkg) globally if not already:
-   ```
-   npm install -g pkg
-   ```
-2. Run:
-   ```
-   npm run build:exe
-   ```
-3. The `.exe` will be in `dist/voltx.exe`.
+The output will be created in `dist/voltx.exe`.
 
-## Windows Notes
-- All paths are normalized for Windows.
-- Execa is used with `shell: true` for compatibility.
-- ANSI color is supported in PowerShell/Windows Terminal.
+## Example workflow for a website
+
+1. scaffold the frontend or API
+2. store shared values with `config`
+3. use `dev serve` to preview files
+4. use `automate watch` to rerun tests or builds
+5. use `net` to check if your endpoint is alive
+
+This makes `voltX` helpful for day-to-day website and system development because it keeps the most repeated tasks in one CLI.
 
 ## License
+
 MIT

@@ -8,6 +8,136 @@ import { execa } from 'execa';
 import log from '../utils/logger.js';
 import config from '../utils/config.js';
 
+const DATABASE_CHOICES = [
+  { name: 'MongoDB', value: 'mongodb' },
+  { name: 'SQL (MySQL)', value: 'sql' },
+  { name: 'PostgreSQL', value: 'postgresql' },
+];
+
+const getDatabaseConfigTemplate = (database) => {
+  if (database === 'sql') {
+    return `import { Sequelize } from 'sequelize';
+
+const SQL_URI = process.env.SQL_URI || 'mysql://root:password@127.0.0.1:3306/voltx_node_api';
+
+export const sequelize = new Sequelize(SQL_URI, {
+  dialect: 'mysql',
+  logging: false,
+});
+
+const connectDatabase = async () => {
+  await sequelize.authenticate();
+  console.log('SQL database connected successfully.');
+};
+
+export default connectDatabase;`;
+  }
+
+  if (database === 'postgresql') {
+    return `import { Sequelize } from 'sequelize';
+
+const POSTGRES_URI = process.env.POSTGRES_URI || 'postgres://postgres:password@127.0.0.1:5432/voltx_node_api';
+
+export const sequelize = new Sequelize(POSTGRES_URI, {
+  dialect: 'postgres',
+  logging: false,
+});
+
+const connectDatabase = async () => {
+  await sequelize.authenticate();
+  console.log('PostgreSQL database connected successfully.');
+};
+
+export default connectDatabase;`;
+  }
+
+  return `import mongoose from 'mongoose';
+
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/voltx-node-api';
+
+const connectDatabase = async () => {
+  await mongoose.connect(MONGO_URI);
+  console.log('MongoDB connected successfully.');
+};
+
+export default connectDatabase;`;
+};
+
+const getNodeApiServerTemplate = () => `import 'dotenv/config';
+import app from './app.js';
+import connectDatabase from './config/database.js';
+import { ensureDefaultAdmin } from './services/auth.service.js';
+
+const PORT = process.env.PORT || 5000;
+
+const startServer = async () => {
+  try {
+    await connectDatabase();
+
+    if (process.env.DEFAULT_ADMIN_EMAIL && process.env.DEFAULT_ADMIN_PASSWORD) {
+      await ensureDefaultAdmin();
+    }
+
+    app.listen(PORT, () => {
+      console.log(\`Server running on port \${PORT}\`);
+    });
+  } catch (error) {
+    console.error(error.message);
+    process.exit(1);
+  }
+};
+
+startServer();`;
+
+const getNodeApiPackageJsonTemplate = (database, name = 'node-api-starter', version = '1.0.0') => {
+  const dependencies = {
+    bcryptjs: '^2.4.3',
+    dotenv: '^16.4.5',
+    express: '^4.21.2',
+    jsonwebtoken: '^9.0.2',
+    mongoose: '^8.7.1',
+  };
+
+  if (database === 'sql') {
+    dependencies.sequelize = '^6.37.3';
+    dependencies.mysql2 = '^3.11.3';
+  }
+
+  if (database === 'postgresql') {
+    dependencies.sequelize = '^6.37.3';
+    dependencies.pg = '^8.13.1';
+  }
+
+  return JSON.stringify(
+    {
+      name,
+      version,
+      type: 'module',
+      scripts: {
+        start: 'node src/server.js',
+        dev: 'nodemon src/server.js',
+      },
+      dependencies,
+      devDependencies: {
+        nodemon: '^3.1.14',
+      },
+    },
+    null,
+    2
+  );
+};
+
+const buildEnvContent = (values, envFileName = '.env.development') => {
+  const nodeEnv = envFileName === '.env.production' ? 'production' : 'development';
+  return [
+    `PORT=${values.PORT}`,
+    `NODE_ENV=${nodeEnv}`,
+    `JWT_SECRET=${values.JWT_SECRET}`,
+    `JWT_EXPIRESIN=${values.JWT_EXPIRESIN}`,
+    `MONGO_URI=${values.MONGO_URI}`,
+  ].join('\n');
+};
+
 const templates = {
   'node-api': {
     files: {
@@ -377,57 +507,9 @@ app.use((error, req, res, next) => {
 });
 
 export default app;`,
-      'src/server.js': `import 'dotenv/config';
-import mongoose from 'mongoose';
-import app from './app.js';
-import { ensureDefaultAdmin } from './services/auth.service.js';
-
-const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || '';
-
-const startServer = async () => {
-  try {
-    if (MONGODB_URI) {
-      await mongoose.connect(MONGODB_URI);
-    }
-
-    if (process.env.DEFAULT_ADMIN_EMAIL && process.env.DEFAULT_ADMIN_PASSWORD) {
-      await ensureDefaultAdmin();
-    }
-
-    app.listen(PORT, () => {});
-  } catch (error) {
-    console.error(error.message);
-    process.exit(1);
-  }
-};
-
-startServer();`,
-      '.env.example': `PORT=5000
-MONGODB_URI=mongodb://127.0.0.1:27017/voltx-node-api
-JWT_SECRET=replace_this_with_a_strong_secret
-DEFAULT_ADMIN_NAME=Default Admin
-DEFAULT_ADMIN_EMAIL=admin@voltx.local
-DEFAULT_ADMIN_PASSWORD=Admin@12345`,
-      'package.json': `{
-  "name": "node-api-starter",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.7.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.14"
-  }
-}`,
+      'src/config/database.js': getDatabaseConfigTemplate('mongodb'),
+      'src/server.js': getNodeApiServerTemplate(),
+      'package.json': getNodeApiPackageJsonTemplate('mongodb'),
     },
     post: async (dir) => {
       await execa('npm', ['install'], { cwd: dir });
@@ -465,13 +547,99 @@ dev
       message: 'Target directory:',
       default: template,
     });
+
+    let filesToWrite = templates[template].files ? { ...templates[template].files } : {};
+
+    if (template === 'node-api') {
+      const { selectedDatabase, createEnvFiles, packageName, packageVersion } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'selectedDatabase',
+          message: 'Select database:',
+          choices: DATABASE_CHOICES,
+          default: 'mongodb',
+        },
+        {
+          type: 'input',
+          name: 'packageName',
+          message: 'Package name:',
+          default: 'node-api-starter',
+          validate: (value) => (value ? true : 'Package name is required.'),
+        },
+        {
+          type: 'input',
+          name: 'packageVersion',
+          message: 'Version:',
+          default: '1.0.0',
+          validate: (value) => (value ? true : 'Version is required.'),
+        },
+        {
+          type: 'confirm',
+          name: 'createEnvFiles',
+          message: 'Create environment files?',
+          default: true,
+        },
+      ]);
+
+      filesToWrite['src/config/database.js'] = getDatabaseConfigTemplate(selectedDatabase);
+      filesToWrite['src/server.js'] = getNodeApiServerTemplate();
+      filesToWrite['package.json'] = getNodeApiPackageJsonTemplate(selectedDatabase, packageName, packageVersion);
+
+      if (createEnvFiles) {
+        const { envFiles } = await inquirer.prompt({
+          type: 'checkbox',
+          name: 'envFiles',
+          message: 'Select .env files:',
+          choices: ['.env.development', '.env.production'],
+          validate: (input) => (input.length ? true : 'Select at least one.'),
+        });
+
+        const envValues = await inquirer.prompt([
+          {
+            type: 'input',
+            name: 'PORT',
+            message: 'PORT:',
+            default: '5000',
+            validate: (value) => (value ? true : 'PORT required.'),
+          },
+          {
+            type: 'input',
+            name: 'JWT_SECRET',
+            message: 'JWT_SECRET:',
+            default: 'replace_this_with_a_strong_secret',
+            validate: (value) => (value ? true : 'JWT_SECRET required.'),
+          },
+          {
+            type: 'input',
+            name: 'JWT_EXPIRESIN',
+            message: 'JWT_EXPIRESIN:',
+            default: '7d',
+            validate: (value) => (value ? true : 'JWT_EXPIRESIN required.'),
+          },
+          {
+            type: 'input',
+            name: 'MONGO_URI',
+            message: 'MONGO_URI:',
+            default: 'mongodb://127.0.0.1:27017/voltx-node-api',
+            validate: (value) => (value ? true : 'MONGO_URI required.'),
+          },
+        ]);
+
+        const envContent = buildEnvContent(envValues);
+        for (const envFile of envFiles) {
+          filesToWrite[envFile] = buildEnvContent(envValues, envFile);
+        }
+      }
+    }
+
     if (await fs.pathExists(dir)) {
       log.error('Directory already exists.');
       return;
     }
+
     await fs.mkdirp(dir);
-    if (templates[template].files) {
-      for (const [file, content] of Object.entries(templates[template].files)) {
+    if (Object.keys(filesToWrite).length) {
+      for (const [file, content] of Object.entries(filesToWrite)) {
         await fs.outputFile(path.join(dir, file), content);
       }
     }
@@ -486,9 +654,8 @@ dev
             return;
       }
     }
-    log.success('Scaffolded ' + template + ' in ' + dir);
-  })
-  .addHelpText('after', `\nExample:\n  voltX dev scaffold node-api`);
+    log.success('Project created in ' + dir);
+  });
 
 dev
   .command('env diff <file1> <file2>')
@@ -509,7 +676,7 @@ dev
       log.error(e.message);
     }
   })
-  .addHelpText('after', `\nExample:\n  voltX dev env diff .env.example .env`);
+
 
 dev
   .command('git clean')
@@ -534,7 +701,7 @@ dev
       log.error(e.message);
     }
   })
-  .addHelpText('after', `\nExample:\n  voltX dev git clean`);
+
 
 dev
   .command('serve <dir>')
@@ -549,6 +716,6 @@ dev
       log.success(`Serving ${dir} at http://localhost:${port}`);
     });
   })
-  .addHelpText('after', `\nExample:\n  voltX dev serve public --port 8080`);
+
 
 export default dev;
